@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b52">
+  <title>GeoSphere | Geography Blog</title>
+  <meta name="description" content="GeoSphere — a student-friendly geography blog for articles, field studies, climate, landforms and more.">
+  <style>
+    :root{--navy:#123b52;--teal:#1c7c78;--pale:#eef6f5;--ink:#172b35;--muted:#5b6b73;--line:#d9e3e6;--white:#fff;--gold:#e8b44b;--danger:#a93232}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#f7fafb;line-height:1.55}
+    header{background:linear-gradient(125deg,#123b52,#1c7c78);color:white;padding:22px 16px 28px}
+    .wrap{max-width:1000px;margin:auto} .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{font-size:1.35rem;font-weight:800;letter-spacing:.3px}.brand span{color:#f3ce75}
+    button,.button{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:650;cursor:pointer}
+    button:disabled{opacity:.55;cursor:wait}.light{background:white;color:var(--navy)} .primary{background:var(--teal);color:white}.secondary{background:#e7eff1;color:var(--navy)}.danger{background:#fbe9e9;color:var(--danger)}
+    .hero{padding:28px 0 6px}.hero h1{font-size:clamp(1.7rem,5vw,2.7rem);line-height:1.15;margin:0 0 10px}.hero p{margin:0;max-width:660px;color:#e2f2f0}
+    main{padding:22px 16px 60px}.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+    input,textarea,select{width:100%;padding:12px;border:1px solid #cbd8dd;border-radius:9px;font:inherit;background:white;color:var(--ink)}
+    textarea{min-height:150px;resize:vertical}.search{flex:1;min-width:190px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:24px 0 12px}.section-title h2{font-size:1.35rem;margin:0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:16px}.post{background:white;border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:0 4px 14px #123b5209}
+    .post img{display:block;width:100%;height:170px;object-fit:cover;background:#e5eeee}.post-body{padding:16px}.tag{display:inline-block;background:#e4f2f0;color:#17625e;border-radius:999px;padding:3px 9px;font-size:.78rem;font-weight:700}
+    .post h3{margin:10px 0 7px;line-height:1.25}.post p{color:var(--muted);margin:0 0 12px;white-space:pre-wrap;overflow-wrap:anywhere}.post-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .panel{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;margin:18px 0}.panel h2,.panel h3{margin-top:0}.hidden{display:none!important}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}.field label{display:block;font-weight:700;margin:0 0 5px}.hint{font-size:.9rem;color:var(--muted)}.status{padding:11px 13px;border-radius:9px;margin:12px 0;background:#e8f4f1;color:#155e55;overflow-wrap:anywhere}.status.error{background:#fff0f0;color:#8d2626}.status.info{background:#edf3f8;color:#234c67}
+    footer{text-align:center;padding:22px 16px;color:var(--muted);border-top:1px solid var(--line);font-size:.9rem}
+    .adminbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.small{font-size:.85rem;color:var(--muted)}
+    @media(max-width:600px){.form-grid{grid-template-columns:1fr}.top{align-items:flex-start}.hero{padding-top:22px}.post img{height:150px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">Geo<span>Sphere</span></div>
+      <button class="light" id="adminToggle">Admin login</button>
+    </div>
+    <section class="hero">
+      <h1>Explore the world through geography.</h1>
+      <p>Articles, field studies, climate, landforms, oceans and the changing places around us.</p>
+    </section>
+  </div>
+</header>
+<main class="wrap">
+  <div id="globalStatus" class="status info hidden" role="status"></div>
+
+  <section id="loginPanel" class="panel hidden">
+    <h2>Admin login</h2>
+    <p class="hint">Sign in with the Admin account you created in Supabase Authentication. Never share your password.</p>
+    <form id="loginForm">
+      <div class="form-grid">
+        <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
+        <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+      </div>
+      <div class="post-actions"><button class="primary" type="submit">Sign in</button><button class="secondary" id="cancelLogin" type="button">Cancel</button></div>
+    </form>
+  </section>
+
+  <section id="adminPanel" class="panel hidden">
+    <div class="adminbar"><div><h2 style="margin-bottom:2px">Admin dashboard</h2><div id="adminEmail" class="small"></div></div><button id="logoutBtn" class="secondary">Sign out</button></div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+    <h3 id="formHeading">Write a geography article</h3>
+    <form id="postForm">
+      <input id="postId" type="hidden">
+      <div class="form-grid">
+        <div class="field full"><label for="title">Article title *</label><input id="title" maxlength="180" required placeholder="e.g. The importance of monsoon winds"></div>
+        <div class="field"><label for="category">Category</label><select id="category"><option>Physical Geography</option><option>Human Geography</option><option>Climatology</option><option>Oceanography</option><option>Geomorphology</option><option>Field Study</option><option>Environment</option><option>Other</option></select></div>
+        <div class="field"><label for="imageUrl">Image URL (optional)</label><input id="imageUrl" type="url" placeholder="https://..."></div>
+        <div class="field full"><label for="content">Article content *</label><textarea id="content" required placeholder="Write your article here..."></textarea></div>
+      </div>
+      <div class="post-actions">
+        <button class="primary" type="submit" id="publishBtn">Publish article</button>
+        <button class="secondary" type="button" id="draftBtn">Save as draft</button>
+        <button class="secondary hidden" type="button" id="cancelEditBtn">Cancel edit</button>
+      </div>
+      <p class="hint">Drafts are visible only to your authenticated Admin account. Published articles are visible to visitors.</p>
+    </form>
+    <div class="section-title"><h3>Your articles</h3><button class="secondary" id="refreshAdminBtn" type="button">Refresh</button></div>
+    <div id="adminPosts" class="grid"></div>
+  </section>
+
+  <section>
+    <div class="section-title"><h2>Latest articles</h2></div>
+    <div class="toolbar">
+      <input class="search" id="search" type="search" placeholder="Search articles..." aria-label="Search articles">
+      <select id="categoryFilter" aria-label="Filter by category" style="max-width:230px"><option value="">All categories</option><option>Physical Geography</option><option>Human Geography</option><option>Climatology</option><option>Oceanography</option><option>Geomorphology</option><option>Field Study</option><option>Environment</option><option>Other</option></select>
+    </div>
+    <div id="publicPosts" class="grid"></div>
+    <p id="emptyMessage" class="hint">Loading published articles…</p>
+  </section>
+</main>
+<footer><div class="wrap">GeoSphere · Geography learning and student articles</div></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  // Replace only the placeholder below with your Supabase Publishable key.
+  // Never put a Supabase secret/service_role key in this public website.
+  const SUPABASE_URL = 'https://nkjijcredotiezpcjiky.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_mBW38RXclY75IHD717yDww_YFxbOGG_';
+  const configured = SUPABASE_PUBLISHABLE_KEY.startsWith('sb_publishable_');
+
+  const $ = (id) => document.getElementById(id);
+  const status = (message, type='info') => {
+    const el = $('globalStatus');
+    el.textContent = message;
+    el.className = 'status ' + (type === 'error' ? 'error' : type === 'success' ? '' : 'info');
+    el.classList.remove('hidden');
+  };
+  const hideStatus = () => $('globalStatus').classList.add('hidden');
+  if (!window.supabase || !configured) {
+    status('Setup needed: add your Supabase Publishable key in index.html, then upload the file to GitHub Pages.', 'info');
+    $('emptyMessage').textContent = 'Published articles will appear here after Supabase is configured.';
+    return;
+  }
+
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  let session = null;
+  let publicCache = [];
+  let adminCache = [];
+
+  const esc = (v='') => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const safeImage = (v) => {
+    try { const u = new URL(v); return ['http:','https:'].includes(u.protocol) ? u.href : ''; } catch { return ''; }
+  };
+  const excerpt = (v, n=190) => (v || '').length > n ? (v || '').slice(0,n) + '…' : (v || '');
+  const dateLabel = (v) => { try { return new Date(v).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); } catch { return ''; } };
+
+  function articleCard(post, admin=false) {
+    const image = safeImage(post.image_url || '');
+    const imageHtml = image ? `<img src="${esc(image)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '';
+    const state = admin ? `<span class="tag">${post.published ? 'Published' : 'Draft'}</span>` : '';
+    const actions = admin ? `<div class="post-actions"><button class="secondary" data-edit="${esc(post.id)}" type="button">Edit</button><button class="secondary" data-toggle="${esc(post.id)}" data-published="${post.published ? 'true' : 'false'}" type="button">${post.published ? 'Unpublish' : 'Publish'}</button><button class="danger" data-delete="${esc(post.id)}" type="button">Delete</button></div>` : '';
+    return `<article class="post">${imageHtml}<div class="post-body">${state}<span class="tag">${esc(post.category || 'Geography')}</span><h3>${esc(post.title || 'Untitled')}</h3><p class="small">${esc(dateLabel(post.created_at))}</p><p>${esc(excerpt(post.content || ''))}</p>${actions}</div></article>`;
+  }
+
+  function renderPublic() {
+    const q = $('search').value.trim().toLowerCase();
+    const cat = $('categoryFilter').value;
+    const filtered = publicCache.filter(p => (!cat || p.category === cat) && (!q || `${p.title||''} ${p.content||''} ${p.category||''}`.toLowerCase().includes(q)));
+    $('publicPosts').innerHTML = filtered.map(p => articleCard(p)).join('');
+    $('emptyMessage').textContent = filtered.length ? '' : 'No published articles found yet.';
+    $('emptyMessage').classList.toggle('hidden', filtered.length > 0);
+  }
+  async function loadPublic() {
+    const {data,error} = await db.from('posts').select('id,created_at,title,content,category,image_url,published').eq('published',true).order('created_at',{ascending:false});
+    if (error) { $('emptyMessage').textContent = 'Could not load articles. Check the posts table and its read policy.'; status('Could not load published articles: ' + error.message, 'error'); return; }
+    publicCache = data || []; renderPublic();
+  }
+  async function loadAdmin() {
+    if (!session) return;
+    const {data,error} = await db.from('posts').select('id,created_at,title,content,category,image_url,published').order('created_at',{ascending:false});
+    if (error) { status('Admin could not load posts: ' + error.message, 'error'); return; }
+    adminCache = data || [];
+    $('adminPosts').innerHTML = adminCache.length ? adminCache.map(p => articleCard(p,true)).join('') : '<p class="hint">No articles yet. Write your first one above.</p>';
+  }
+  function resetForm() {
+    $('postForm').reset(); $('postId').value=''; $('formHeading').textContent='Write a geography article';
+    $('publishBtn').textContent='Publish article'; $('draftBtn').textContent='Save as draft'; $('cancelEditBtn').classList.add('hidden');
+  }
+  async function savePost(published) {
+    if (!session) return status('Please sign in first.','error');
+    const title = $('title').value.trim(), content = $('content').value.trim();
+    if (!title || !content) return status('Please enter both a title and article content.','error');
+    const row = {title,content,category:$('category').value,image_url:$('imageUrl').value.trim() || null,published};
+    const id = $('postId').value;
+    const result = id ? await db.from('posts').update(row).eq('id',id).select().single() : await db.from('posts').insert(row).select().single();
+    if (result.error) return status('Could not save article: ' + result.error.message,'error');
+    status(published ? 'Article published successfully.' : 'Draft saved successfully.','success');
+    resetForm(); await loadAdmin(); await loadPublic();
+  }
+
+   $('adminToggle').addEventListener('click', () => {
+    if (session) { $('adminPanel').classList.toggle('hidden'); $('loginPanel').classList.add('hidden'); }
+    else $('loginPanel').classList.toggle('hidden');
+  });
+  $('cancelLogin').addEventListener('click', () => $('loginPanel').classList.add('hidden'));
+  $('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const {data,error} = await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+    if (error) return status('Sign in failed: ' + error.message,'error');
+    session = data.session;
+    $('loginPanel').classList.add('hidden'); $('adminPanel').classList.remove('hidden');
+    $('adminEmail').textContent = session.user.email || 'Signed in';
+    $('adminToggle').textContent = 'Admin dashboard';
+    status('Signed in. If you cannot edit posts, confirm this account UID is in public.admins.','success');
+    await loadAdmin();
+  });
+  $('logoutBtn').addEventListener('click', async () => {
+    const {error} = await db.auth.signOut();
+    if (error) return status('Sign out failed: ' + error.message,'error');
+    session=null; adminCache=[]; $('adminPanel').classList.add('hidden'); $('adminToggle').textContent='Admin login';
+    status('Signed out.','success');
+  });
+  $('postForm').addEventListener('submit', async (e) => { e.preventDefault(); await savePost(true); });
+  $('draftBtn').addEventListener('click', async () => await savePost(false));
+  $('cancelEditBtn').addEventListener('click', resetForm);
+  $('refreshAdminBtn').addEventListener('click', loadAdmin);
+  $('search').addEventListener('input', renderPublic);
+  $('categoryFilter').addEventListener('change', renderPublic);
+  $('adminPosts').addEventListener('click', async (e) => {
+    const edit = e.target.closest('[data-edit]');
+    const toggle = e.target.closest('[data-toggle]');
+    const del = e.target.closest('[data-delete]');
+    if (edit) {
+      const p = adminCache.find(x => String(x.id) === edit.dataset.edit); if (!p) return;
+      $('postId').value=p.id; $('title').value=p.title||''; $('content').value=p.content||'';
+      $('category').value=p.category||'Other'; $('imageUrl').value=p.image_url||'';
+      $('formHeading').textContent='Edit article'; $('publishBtn').textContent=p.published?'Save changes':'Publish changes';
+      $('draftBtn').textContent='Save as draft'; $('cancelEditBtn').classList.remove('hidden');
+      $('postForm').scrollIntoView({behavior:'smooth',block:'start'}); return;
+    }
+    if (toggle) {
+      const p = adminCache.find(x => String(x.id) === toggle.dataset.toggle); if (!p) return;
+      const next = toggle.dataset.published !== 'true';
+      const {error} = await db.from('posts').update({published:next}).eq('id',p.id);
+      if (error) return status('Could not change publication status: '+error.message,'error');
+      status(next?'Article published.':'Article unpublished.','success'); await loadAdmin(); await loadPublic(); return;
+    }
+    if (del) {
+      const p = adminCache.find(x => String(x.id) === del.dataset.delete); if (!p) return;
+      if (!confirm(`Delete "${p.title}" permanently?`)) return;
+      const {error} = await db.from('posts').delete().eq('id',p.id);
+      if (error) return status('Could not delete article: '+error.message,'error');
+      status('Article deleted.','success'); await loadAdmin(); await loadPublic();
+    }
+  });
+
+  db.auth.getSession().then(async ({data}) => {
+    session=data.session;
+    if (session) {
+      $('adminToggle').textContent='Admin dashboard'; $('adminPanel').classList.remove('hidden');
+      $('adminEmail').textContent=session.user.email || 'Signed in'; await loadAdmin();
+    }
+    await loadPublic();
+  });
+  db.auth.onAuthStateChange((_event,newSession) => {
+    session=newSession;
+    if (!session) { $('adminPanel').classList.add('hidden'); $('adminToggle').textContent='Admin login'; }
+  });
+})();
+</script>
+</body>
+</html>
